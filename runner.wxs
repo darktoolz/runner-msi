@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Id="Darktooz.Runner.Msi" Name="Darktooz GitLab Runner" Manufacturer="Darktooz" Version="0.0.2">
+    <ComponentGroup Id="ProductComponents_x64" Directory="INSTALLFOLDER">
+        <Component Id="TargetProgram_x64" Guid="f757ff43-0266-483a-8749-ec796cba4064" >
+            <File Id="X64.EXE" Source=".\source\x64.txt" />
+        </Component>
+    </ComponentGroup>
+    <ComponentGroup Id="ProductComponents_x32" Directory="INSTALLFOLDER">
+        <Component Id="TargetProgram_x32" Guid="f757ff43-0266-483a-8749-ec796cba4032" >
+            <File Id="X32.EXE" Source=".\source\x32.txt" />
+        </Component>
+    </ComponentGroup>
+    <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
+    <Property Id="GITTOKEN"  Value="RUNNER_TOKEN" />
+    <Property Id="GITURL"  Value="https://gitlab.com/" />
+    <!--
+    <CustomAction Id="EXECUTE_AFTER_FINALIZE"
+                Execute="immediate" 
+                Impersonate="yes"
+                Return="asyncNoWait"
+                FileRef="X64.EXE"
+                ExeCommand="" />
+    <InstallExecuteSequence>
+        <Custom Action="EXECUTE_AFTER_FINALIZE" After="InstallFinalize" Condition="NOT Installed" />
+    </InstallExecuteSequence>
+    -->
+    <Component Id="cmpEnvironmentVariable" Guid="{313075B5-BF2C-4012-9A6E-2F4E2C461306}" KeyPath="yes">
+        <Environment Id="myEnvironmentVariable" Name="Darktoolz_Token" Value="[GITTOKEN]" Action="set" System="yes" />
+    </Component>
+    <Feature Id="x64_version" Title="x64 version" Description="x64_version components" Level="0" Display="hidden" AllowAdvertise="no">
+        <ComponentGroupRef Id="ProductComponents_x64"/>
+        <ComponentRef Id="cmpEnvironmentVariable" />
+		<Level Value="1" Condition="VersionNT64" />
+    </Feature>
+    <Feature Id="x32_version" Title="x32 version" Description="x32_version components" Level="0" Display="hidden" AllowAdvertise="no">
+        <ComponentGroupRef Id="ProductComponents_x32"/>
+        <ComponentRef Id="cmpEnvironmentVariable" />
+		<Level Value="1" Condition="NOT VersionNT64" />
+    </Feature>
+  </Package>
+</Wix>
