@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Id="Darktooz.Runner.Msi" Name="Darktooz GitLab Runner" Manufacturer="Darktooz" Version="0.0.2">
+  <Package Id="Darktoolz.Runner.Msi" Name="Darktoolz GitLab Runner" Manufacturer="Darktoolz" Version="0.0.2">
     <ComponentGroup Id="ProductComponents_x64" Directory="INSTALLFOLDER">
         <Component Id="TargetProgram_x64" Guid="f757ff43-0266-483a-8749-ec796cba4064" >
             <File Id="X64.EXE" Source=".\source\x64.txt" />
