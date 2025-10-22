@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define AppName_x64 = "gitlab-runner-windows-amd64.exe" ?>
+<?define AppName_x86 = "gitlab-runner-windows-386.exe" ?>
+<?define ProductName = "GitLab Runner" ?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Id="Darktoolz.Runner.Msi" Name="$(ProductName)" Manufacturer="Darktoolz" Version="0.0.3">
+    <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
+    <Property Id="GITTOKEN" Value="RUNNER_TOKEN" />
+    <Property Id="GITURL" Value="http://github.com/" />
+    <Property Id="SERVICENAME64" Value="Darktoolz_Runner64" />
+    <Property Id="SERVICENAME" Value="Darktoolz_Runner" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+        <Directory Id="INSTALLFOLDER" Name="!(bind.Property.Manufacturer) !(bind.Property.ProductName)">
+            <Directory Id="AppBinDirectory" Name="bin"></Directory>
+        </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents_x64" Directory="AppBinDirectory">
+        <Component>
+            <File Source="..\source\$(AppName_x64)" />
+            <ServiceInstall Name="[SERVICENAME64]" DisplayName="$(ProductName)" Description="Darktoolz GitLab Runner x64" Type="ownProcess" Start="auto" ErrorControl="normal" Vital="no" Interactive="no"
+                Arguments="run --config &quot;[INSTALLFOLDER]bin\config.toml&quot; --working-directory &quot;[INSTALLFOLDER]bin&quot; --service [SERVICENAME64] --syslog" />
+            <ServiceControl Name="[SERVICENAME64]" Remove="uninstall" Start="install" Stop="both" Wait="yes" />
+            <ServiceConfig ServiceName="[SERVICENAME64]" OnInstall="yes" DelayedAutoStart="yes" />
+        </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ProductComponents_x32" Directory="AppBinDirectory">
+        <Component>
+            <File Source="..\source\$(AppName_x86)" />
+            <ServiceInstall Name="[SERVICENAME]" DisplayName="$(ProductName)" Description="Darktoolz GitLab Runner" Type="ownProcess" Start="auto" ErrorControl="normal" Vital="no" Interactive="no"
+                Arguments="run --config &quot;[INSTALLFOLDER]bin\config.toml&quot; --working-directory &quot;[INSTALLFOLDER]bin&quot; --service [SERVICENAME] --syslog" />
+            <ServiceControl Name="[SERVICENAME]" Remove="uninstall" Start="install" Stop="both" Wait="yes" />
+            <ServiceConfig ServiceName="[SERVICENAME]" OnInstall="yes" DelayedAutoStart="yes" />
+        </Component>
+    </ComponentGroup>
+
+    <CustomAction Id="Register_Runner_x64" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x64) register --non-interactive --url &quot;[GITURL]&quot; --token &quot;[GITTOKEN]&quot; --executor &quot;docker-windows&quot; --docker-image mcr.microsoft.com/windows/servercore:1809_amd64" Execute="deferred" Return="ignore" Impersonate="no" />
+    <InstallExecuteSequence>
+        <Custom Action="Register_Runner_x64" Before="InstallServices" Condition="VersionNT64 AND (Not Installed)" />
+    </InstallExecuteSequence>
+
+    <CustomAction Id="Register_Runner_x32" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x86) register --non-interactive --url &quot;[GITURL]&quot; --token &quot;[GITTOKEN]&quot; --executor &quot;docker-windows&quot; --docker-image mcr.microsoft.com/windows/servercore:1809_i386" Execute="deferred" Return="ignore" Impersonate="no" />
+    <InstallExecuteSequence>
+        <Custom Action="Register_Runner_x32" Before="InstallServices" Condition="NOT VersionNT64 AND (Not Installed)" />
+    </InstallExecuteSequence>
+
+    <Feature Id="x64_version" Title="x64 version" Description="x64_version components" Level="0" Display="hidden" AllowAdvertise="no">
+		<Level Value="1" Condition="VersionNT64" />
+        <ComponentGroupRef Id="ProductComponents_x64"/>
+    </Feature>
+    <Feature Id="x32_version" Title="x32 version" Description="x32_version components" Level="0" Display="hidden" AllowAdvertise="no">
+		<Level Value="1" Condition="NOT VersionNT64" />
+        <ComponentGroupRef Id="ProductComponents_x32" />
+    </Feature>
+  </Package>
+</Wix>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define AppName_x64 = "gitlab-runner-windows-amd64.exe" ?>
+<?define AppName_x86 = "gitlab-runner-windows-386.exe" ?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Id="Darktoolz.Runner.Msi" Name="GitLab Runner" Manufacturer="Darktoolz" Version="0.0.3">
+    <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
+    <Property Id="GITTOKEN" Value="RUNNER_TOKEN" />
+    <Property Id="GITURL" Value="http://github.com/" />
+    <Property Id="SERVICENAME" Value="Darktoolz_Runner5" />
+    <Property Id="AppName_x64" Value="gitlab-runner-windows-amd64.exe" />
+    <Property Id="AppName_x86" Value="gitlab-runner-windows-386.exe" />
+
+    <StandardDirectory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="!(bind.Property.Manufacturer) !(bind.Property.ProductName)">
+            <Directory Id="AppBinDirectory" Name="bin"></Directory>
+        </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents_x64" Directory="AppBinDirectory">
+        <Component>
+            <File Source="..\source\$(AppName_x64)" />
+        </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ProductComponents_x32" Directory="AppBinDirectory">
+        <Component>
+            <File Source="..\source\$(AppName_x86)" />
+        </Component>
+    </ComponentGroup>
+
+    <CustomAction Id="Stop_Runner_x64" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x64) stop" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Uninstall_Runner_x64" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x64) uninstall" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Register_Runner_x64" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x64) register --non-interactive --url &quot;[GITURL]&quot; --token &quot;[GITTOKEN]&quot; --executor &quot;docker-windows&quot; --docker-image mcr.microsoft.com/windows/servercore:1809_amd64" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Install_Runner_x64" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x64) install" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Start_Runner_x64" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x64) start" Execute="deferred" Return="ignore" Impersonate="no" />
+    <InstallExecuteSequence>
+        <Custom Action="Stop_Runner_x64" Before="RemoveFiles" Condition="VersionNT64 AND (NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+        <Custom Action="Uninstall_Runner_x64" Before="RemoveFiles" Condition="VersionNT64 AND (NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+        <Custom Action="Register_Runner_x64" Before="InstallFinalize" Condition="(VersionNT64) AND (Not Installed)" />
+        <Custom Action="Install_Runner_x64" Before="InstallFinalize" Condition="(VersionNT64) AND (Not Installed)" />
+        <Custom Action="Start_Runner_x64" Before="InstallFinalize" Condition="(VersionNT64) AND (Not Installed)" />
+    </InstallExecuteSequence>
+
+
+    <CustomAction Id="Stop_Runner_x86" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x86) stop" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Uninstall_Runner_x86" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x86) uninstall" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Register_Runner_x86" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x86) register --non-interactive --url &quot;[GITURL]&quot; --token &quot;[GITTOKEN]&quot; --executor &quot;docker-windows&quot; --docker-image mcr.microsoft.com/windows/servercore:1809_amd64" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Install_Runner_x86" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x86) install" Execute="deferred" Return="ignore" Impersonate="no" />
+    <CustomAction Id="Start_Runner_x86" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]$(AppName_x86) start" Execute="deferred" Return="ignore" Impersonate="no" />
+    <InstallExecuteSequence>
+        <Custom Action="Stop_Runner_x86" Before="RemoveFiles" Condition="(NOT VersionNT64) AND (NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+        <Custom Action="Uninstall_Runner_x86" Before="RemoveFiles" Condition="(NOT VersionNT64) AND (NOT UPGRADINGPRODUCTCODE) AND (REMOVE=&quot;ALL&quot;)" />
+        <Custom Action="Register_Runner_x86" Before="InstallFinalize" Condition="(NOT VersionNT64) AND (Not Installed)" />
+        <Custom Action="Install_Runner_x86" Before="InstallFinalize" Condition="(NOT VersionNT64) AND (Not Installed)" />
+        <Custom Action="Start_Runner_x86" Before="InstallFinalize" Condition="(NOT VersionNT64) AND (Not Installed)" />
+    </InstallExecuteSequence>
+
+
+    <CustomAction Id="Register_Runner_x32" Directory="AppBinDirectory" ExeCommand="[AppBinDirectory]gitlab-runner-windows-386.exe register --non-interactive --url &quot;[GITURL]&quot; --token &quot;[GITTOKEN]&quot; --executor &quot;docker-windows&quot; --docker-image mcr.microsoft.com/windows/servercore:1809_i386" Execute="deferred" Return="ignore" Impersonate="no" />
+    <!-- <InstallExecuteSequence>
+        <Custom Action="Register_Runner_x32" Before="InstallFinalize" Condition="NOT VersionNT64" />
+    </InstallExecuteSequence> -->
+
+    <Feature Id="x64_version" Title="x64 version" Description="x64_version components" Level="0" Display="hidden" AllowAdvertise="no">
+		<Level Value="1" Condition="VersionNT64" />
+        <ComponentGroupRef Id="ProductComponents_x64"/>
+    </Feature>
+    <Feature Id="x32_version" Title="x32 version" Description="x32_version components" Level="0" Display="hidden" AllowAdvertise="no">
+		<Level Value="1" Condition="NOT VersionNT64" />
+        <ComponentGroupRef Id="ProductComponents_x32" />
+    </Feature>
+  </Package>
+</Wix>
