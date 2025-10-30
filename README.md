@@ -21,7 +21,7 @@ msiexec /qn /i "bin\Release\runner.msi" GITTOKEN=Token123 GITURL=http://github.c
   v0.106
   ======
   - !75 Support <Condition> inside <Feature> and <Component>
-```
+  ```
 
 # Passing arguments to .msi package
 Create `Property` with `Id`="GITTOKEN", set default `Value` in case you don't provide launch argument when starting .msi
