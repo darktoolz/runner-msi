@@ -16,7 +16,12 @@ msiexec /qn /i "bin\Release\runner.msi" GITTOKEN=Token123 GITURL=http://github.c
 
 # TODO
 - `CustomActions` not working properly
-- `Condition` tag is absent in `wixl` - 32 and 64 bit combined package is impossible
+- `Condition` tag was added in msitools v0.106 https://download.gnome.org/sources/msitools/0.106/
+  ```
+  v0.106
+  ======
+  - !75 Support <Condition> inside <Feature> and <Component>
+```
 
 # Passing arguments to .msi package
 Create `Property` with `Id`="GITTOKEN", set default `Value` in case you don't provide launch argument when starting .msi
