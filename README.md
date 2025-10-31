@@ -12,12 +12,12 @@ For Conditional setup using Feature, use distro with wixl v0.106. Ubuntu 25.10 c
 
 # Building MSI
 ```bash
-wixl -o gitlab-runner.msi wixl-gitlab-runner.wxs
+wixl -D VERSION=18.5.0 -o gitlab-runner.msi wixl-gitlab-runner.wxs
 ```
 
 # Silent setup MSI
 Launch elevated CMD and paste modified command
-```cmd
+```powershell
 msiexec /qn /i "gitlab-runner.msi" GITTOKEN=Token123 GITURL=http://github.com GITNAME=server1
 ```
 
@@ -30,21 +30,21 @@ Create `Property` with `Id`="GITTOKEN", set default `Value` in case you don't pr
 ```xml
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Id="GitLab-Runner.Msi" Name="GitLab Runner" Manufacturer="GitLab" Version="18.14.0">
-    <Property Id="GITTOKEN"  Value="someDefaultValue" />
+    <Property Id="GITTOKEN"  Value="someDefaultToken" />
 ```
 Pass your data to `GITTOKEN` property as launch argument:
 - PowerShell token with spaces
-```powershell
-msiexec /i "bin\Release\runner.msi" GITTOKEN=`"Token with spaces`" GITURL=http://github.com
-```
+  ```powershell
+  msiexec /i "gitlab-runner.msi" GITTOKEN=`"Token with spaces`" GITURL=http://github.com
+  ```
 - CMD token with spaces
-```cmd
-msiexec /i "bin\Release\runner.msi" GITTOKEN="Token with spaces" GITURL=http://github.com
-```
+  ```cmd
+  msiexec /i "gitlab-runner.msi" GITTOKEN="Token with spaces" GITURL=http://github.com
+  ```
 
 # Creating/changing config.toml
 - Do not use a closed bracket as part of the section name
 
-| TOML section | wixl section name |
-| - | - |
-| [[runners]] |	[runners |
+  | TOML section | wixl section name |
+  | - | - |
+  | [[runners]] |	[runners |
