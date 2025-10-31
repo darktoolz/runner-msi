@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-<Product Name="GitLab Runner" Manufacturer="GitLab" Version="7.0.0" Id="EA524AD9-6920-4D46-B03E-7DA72F46F89B" UpgradeCode="8AB05FAB-726C-4AA1-BB09-CC8C2534683C" Language="1033">
+<Product Name="GitLab Runner" Manufacturer="GitLab" Version="18.5.0" Id="EA524AD9-6920-4D46-B03E-7DA72F46F89B" UpgradeCode="8AB05FAB-726C-4AA1-BB09-CC8C2534683C" Language="1033">
 	<Package Description="GitLab Runner" InstallerVersion="200" Compressed="yes" />
 	<MediaTemplate EmbedCab="yes" />
 

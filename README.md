@@ -18,17 +18,18 @@ wixl -o gitlab-runner.msi wixl-gitlab-runner.wxs
 # Silent setup MSI
 Launch elevated CMD and paste modified command
 ```cmd
-msiexec /qn /i "bin\Release\runner.msi" GITTOKEN=Token123 GITURL=http://github.com
+msiexec /qn /i "gitlab-runner.msi" GITTOKEN=Token123 GITURL=http://github.com GITNAME=server1
 ```
 
 # TODO
 - `CustomActions` not working properly
+  - replaced with modification of `config.toml` using `IniFile`
 
 # Passing arguments to .msi package
 Create `Property` with `Id`="GITTOKEN", set default `Value` in case you don't provide launch argument when starting .msi
 ```xml
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Id="Darktoolz.Runner.Msi" Name="Darktoolz GitLab Runner" Manufacturer="Darktoolz" Version="0.0.2">
+  <Package Id="GitLab-Runner.Msi" Name="GitLab Runner" Manufacturer="GitLab" Version="18.14.0">
     <Property Id="GITTOKEN"  Value="someDefaultValue" />
 ```
 Pass your data to `GITTOKEN` property as launch argument:
