@@ -2,6 +2,13 @@
 ```bash
 sudo apt install wixl
 ```
+For Conditional setup using Feature, use distro with wixl v0.106. Ubuntu 25.10 can install wixl v0.106 by default. Or build your own from https://download.gnome.org/sources/msitools/0.106/
+- `Condition` tag was added in msitools v0.106 https://download.gnome.org/sources/msitools/0.106/
+  ```
+  v0.106
+  ======
+  - !75 Support <Condition> inside <Feature> and <Component>
+  ```
 
 # Building MSI
 ```bash
@@ -16,12 +23,6 @@ msiexec /qn /i "bin\Release\runner.msi" GITTOKEN=Token123 GITURL=http://github.c
 
 # TODO
 - `CustomActions` not working properly
-- `Condition` tag was added in msitools v0.106 https://download.gnome.org/sources/msitools/0.106/
-  ```
-  v0.106
-  ======
-  - !75 Support <Condition> inside <Feature> and <Component>
-  ```
 
 # Passing arguments to .msi package
 Create `Property` with `Id`="GITTOKEN", set default `Value` in case you don't provide launch argument when starting .msi
@@ -39,3 +40,10 @@ msiexec /i "bin\Release\runner.msi" GITTOKEN=`"Token with spaces`" GITURL=http:/
 ```cmd
 msiexec /i "bin\Release\runner.msi" GITTOKEN="Token with spaces" GITURL=http://github.com
 ```
+
+# Creating/changing config.toml
+- Do not use a closed bracket as part of the section name
+
+| TOML section | wixl section name |
+| - | - |
+| [[runners]] |	[runners |

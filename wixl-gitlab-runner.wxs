@@ -1,49 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 <Product Name="GitLab Runner" Manufacturer="GitLab" Version="7.0.0" Id="EA524AD9-6920-4D46-B03E-7DA72F46F89B" UpgradeCode="8AB05FAB-726C-4AA1-BB09-CC8C2534683C" Language="1033">
-	<Package Description="Test Extra ICEs" InstallerVersion="200" Compressed="yes" />
+	<Package Description="GitLab Runner" InstallerVersion="200" Compressed="yes" />
 	<MediaTemplate EmbedCab="yes" />
 
-	<Property Id="GITTOKEN" Value="RUNNER_TOKEN.txt" />
-	<Property Id="GITURL" Value="http://github.com/" />
-	<Property Id="x64Level" Value="1" />
-	<Property Id="x32Level" Value="1" />
+	<Property Id="GITTOKEN" Value="WIX-Token2" />
+	<Property Id="GITURL" Value="http://github.com" />
+	<Property Id="GITNAME" Value="runner-server1" />
 	<Property Id="SERVICENAME64" Value="gitlab-runner" />
 	<Property Id="SERVICENAME32" Value="gitlab-runner32" />
+  <Property Id="runners" Value="[runners" /> 
+  <Property Id="Inifile_Name" Value="config.toml" /> 
 
 	<Condition Message="This application is only supported on Windows Vista, Windows Server 2008, or higher.">Installed OR (VersionNT >= 600)</Condition>
 
 	<Directory Id="TARGETDIR" Name="SourceDir">
 	<Directory Id="ProgramFilesFolder">
-	    <Directory Id="INSTALLDIR" Name="gitlab-runner">
-		<Directory Id="AppBinDirectory" Name="bin">
-			<Component Win64="no" Id="gitlab-runner-windows-amd64" Guid="{94CA640D-9ECC-4ab3-A91F-530502696x64}">
-				<File Source="gitlab-runner-windows-amd64.exe" Id="gitlab-runner-x64" Name="gitlab-runner-windows-amd64.exe" />
-				<ServiceInstall Id="ServiceInstaller" Name="[SERVICENAME64]" DisplayName="[ProductName]" Type="ownProcess" Vital="yes" Description="GitLab Runner is an application that works with GitLab CI/CD to run jobs in a pipeline." Start="auto" Account="LocalSystem" ErrorControl="normal" Interactive="no"
-						Arguments="run --config &quot;[AppBinDirectory]config.toml&quot; --working-directory &quot;[INSTALLDIR]bin&quot; --service [SERVICENAME64] --syslog" />
-				<ServiceControl Id="StartService" Name="[SERVICENAME64]" Stop="both" Start="install" Remove="uninstall" Wait="yes" />
-			</Component>
-			<Component Win64="yes" Id="runner32" Guid="{94CA640D-9ECC-4ab3-A91F-530502696x32}">
-				<File Source="gitlab-runner.wxs" Id="gitlab-runner-x32" Name="gitlab-runner.wxs" />
-			</Component>
-		</Directory>
-	    </Directory>
+    <Directory Id="INSTALLDIR" Name="gitlab-runner">
+      <Directory Id="AppBinDirectory" Name="bin">
+
+        <Component Id="gitlab-config" Guid="{94CA640D-9ECC-4ab3-A91F-530502696x64}">
+          <File Source="config.toml" Name="config.toml" Id="config-toml" />
+          <IniFile Id="Ini1" Section="[runners]" Key="token" Value="&quot;[GITTOKEN]&quot;" Action="addLine" Directory="AppBinDirectory" Name="config.toml" />			
+          <IniFile Id="Ini2" Section="[runners]" Key="url" Value="&quot;[GITURL]&quot;" Action="addLine" Directory="AppBinDirectory" Name="config.toml" />			
+          <IniFile Id="Ini3" Section="[runners]" Key="name" Value="&quot;[GITNAME]&quot;" Action="addLine" Directory="AppBinDirectory" Name="config.toml" />			
+        </Component>
+
+        <Component Id="gitlab-runner-windows-amd64" Guid="{94CA640D-9ECC-4ab3-A91F-530502696x64}">
+          <File Source="gitlab-runner-windows-amd64.exe" Id="gitlab-runner-x64" />
+          <ServiceInstall Id="ServiceInstaller" Name="[SERVICENAME64]" DisplayName="[ProductName]" Type="ownProcess" Vital="yes" Description="GitLab Runner is an application that works with GitLab CI/CD to run jobs in a pipeline." Start="auto" Account="LocalSystem" ErrorControl="normal" Interactive="no"
+		          Arguments="run --config &quot;[AppBinDirectory]config.toml&quot; --working-directory &quot;[INSTALLDIR]bin&quot; --service [SERVICENAME64] --syslog" />
+          <ServiceControl Id="StartService" Name="[SERVICENAME64]" Stop="both" Start="install" Remove="uninstall" Wait="yes" />
+        </Component>
+
+        <Component Id="runner32" Guid="{94CA640D-9ECC-4ab3-A91F-530502696x32}">
+          <File Source="gitlab-runner.wxs" Id="gitlab-runner-x32" Name="gitlab-runner.wxs" />
+        </Component>
+
+      </Directory>
+    </Directory>
 	</Directory>
 	</Directory>
 
-	<CustomAction Id="Register_Runner_x64" Directory="AppBinDirectory" Property="AppBinDirectory" ExeCommand="[AppBinDirectory]gitlab-runner-windows-amd64.exe register --non-interactive --url &quot;[GITURL]&quot; --token &quot;[GITTOKEN]&quot; --executor &quot;docker-windows&quot; --docker-image mcr.microsoft.com/windows/servercore:1809_amd64" Execute="deferred" Return="ignore" Impersonate="no" />
+  
+	<CustomAction Id="Register_Runner_x64" Property="AppBinDirectory" ExeCommand="[AppBinDirectory]gitlab-runner-windows-amd64.exe register --non-interactive --url &quot;[GITURL]&quot; --token &quot;[GITTOKEN]&quot; --executor &quot;docker-windows&quot; --docker-image mcr.microsoft.com/windows/servercore:1809_amd64" Execute="deferred" Return="ignore" Impersonate="no" />
 	<InstallExecuteSequence>
-		<Custom Action="Register_Runner_x64" Before="InstallServices" />
+		<Custom Action="Register_Runner_x64" Before="InstallServices">NOT VersionNT64</Custom>
 	</InstallExecuteSequence>
 
-	<Feature Id="64bit" Level="1" Title="64bit">
+	<Feature Id="64bit_feat" Level="0" Title="64bit_feat">
+		<Condition Level="1">VersionNT64</Condition>
+		<ComponentRef Id="gitlab-config" />
 		<ComponentRef Id="gitlab-runner-windows-amd64" />
  	</Feature>
  	
-	<Feature Id="32bit" Level="1" Title="32bit">
+	<Feature Id="32bit_feat" Level="0" Title="32bit_feat">
+		<Condition Level="1">NOT VersionNT64</Condition>
 		<ComponentRef Id="runner32" />
  	</Feature>
-
-
 </Product>
 </Wix>
