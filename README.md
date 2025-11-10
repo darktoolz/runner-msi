@@ -22,6 +22,7 @@ msiexec /qn /i "gitlab-runner.msi" GITTOKEN=Token123 GITURL=http://github.com GI
 ```
 
 # TODO
+- Fix rewriting toml on Upgrade
 - `CustomActions` not working properly
   - replaced with modification of `config.toml` using `IniFile`
 
